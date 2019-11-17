@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en" class="no-js">
+
+<head>
+    <meta charset="UTF-8">
+    <title>OpenVtuber</title>
+    <link rel="shortcut icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/live2d/css/live2d.css" />
+
+</head>
+
+<body onbeforeunload="websocketClose()">
+    <canvas id='c' width=screen.width height=screen.height>
+    </canvas>
+
+    <canvas id="live2d" width="560px" height="600px" class="live2d"
+        style="position:absolute;bottom:0px;right:0px;" />
+    </canvas>
+    <span id="partener" />
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/socket.io.slim.js"></script>
+    <script type="text/javascript" src="/live2d/js/live2d.js"></script>
+    <script type="text/javascript">loadlive2d("live2d", "/live2d/model/tia/model.json");</script>
+
+    <script type="text/javascript">
+        var home_Path = 'http://127.0.0.1:6789/vtuber/'
+        var server_ip = "http://127.0.0.1:6789/sakuya";
+        var socket = io(server_ip);
+        var sendIP = (m_btn) => socket.emit('change_ip', m_btn.value);
+        var websocketClose = () => socket.close();
+        var m_group = 'custom_body', m_num = 6, m_mouth = 0.5;
+        var m_left_eye = 0.55, m_right_eye = 0.54; // mid 0.55
+        var m_n = 0.5, m_s = -0.5, m_flag = 3; // PRIORITY_NORMAL: 3, PRIORITY_FORCE: 4,
+
+        // head 0 shy
+        // head 1 embarrassed
+        // head 2 blink eye
+        // head 3 scared
+        // head 4 unhappy
+        // head 5 proud happy
+
+        // body 0 angry
+        // body 1 doubt
+        // body 2 scared
+        // body 3 enrage
+        // body 4 normal
+        // body 5 cry weep
+        // body 6 success
+        // body 7 fail cry
+        // body 8 Sukeber1
+
+        window.onload = function () {
+            var m_canvas = document.getElementById("c");
+            var frame_ctx = m_canvas.getContext("2d");
+            var frame_queue = [];
+            var prefix = 'data:image/jpeg;base64,';
+            var image = new Image();
+            var partener = document.getElementById('partener');
+
+            m_canvas.width = window.innerWidth;
+            m_canvas.height = window.innerHeight;
+
+            socket.on('frame_download', (frame) => frame_queue.push(frame));
+            socket.on('result_download', (result) => drawResult(result));
+
+            $.each(['10.41.0.198', '10.41.0.199', '10.41.0.120', '10.41.0.121', '10.41.0.122'], (index, value) =>
+                $('#camera_list_up').append("<button onclick='sendIP(this)' name='Camera_Button' id='bt1' class='h-100 w-25 btn btn-outline-info' value='" + value + "'>WebCam" + (index + 1) + "</button>"));
+            $.each(['10.41.0.123', '10.41.0.124', '10.41.0.125', '10.41.0.126', '10.41.0.127'], (index, value) =>
+                $('#camera_list_down').append("<button onclick='sendIP(this)' name='Camera_Button' id='bt1' class='h-100 w-25 btn btn-outline-info' value='" + value + "'>WebCam" + (index + 6) + "</button>"));
+
+            setInterval(function () {
+                var image_code = frame_queue.shift();
+                if (image_code) {
+                    drawFrame(image_code, frame_ctx, m_canvas.width, m_canvas.height);
+                }
+            }, 40);
+
+            function drawFrame(image_code, context, w = 960, h = 540) {
+                // function drawFrame(image_code, context, w = 1920, h = 1080) {
+                image.onload = () => context.drawImage(image, 0, 0, w, h);
+                image.src = prefix + image_code;
+            };
+
+            function drawResult(result) {
+                console.log('Roll:' + result.X, 'Pitch:' + result.Y, 'Yaw:' + result.Z);
+                var landmarks_shape = result.shape;
+
+                mouth_in = landmarks_shape[67][1] - landmarks_shape[63][1];
+                mouth_out = landmarks_shape[58][1] - landmarks_shape[52][1];
+
+                laugh_left = landmarks_shape[49][1] - landmarks_shape[52][1];
+                laugh_right = landmarks_shape[55][1] - landmarks_shape[52][1];
+                avg_laugh = laugh_left / 2 + laugh_right / 2;
+
+                m_mouth = (mouth_in / mouth_out);
+                m_mouth = m_mouth < 0.1 ? 0.1 : m_mouth;
+                avg_eye = result.leftEAR / 2 + result.rightEAR / 2 * 2;
+
+                m_left_eye = avg_eye > 0.54 ? 0.55 : (avg_eye < 0.34 ? 0.1 : avg_eye);
+                m_right_eye = avg_eye > 0.54 ? 0.55 : (avg_eye < 0.34 ? 0.1 : avg_eye);
+
+                if (result.Z > -3 && result.Z < 3) m_n = 0
+                else m_n = result.Z / 3;
+
+                // console.log('LeftEye:' + m_left_eye,
+                //     '\nRightEye:' + m_right_eye,
+                //     '\nZ:' + m_n,
+                //     '\nMouth:' + m_mouth);
+
+                if (avg_laugh < 50) {
+                    // m_left_eye = 0.1;
+                    // m_right_eye = 0.1;
+                    m_flag = 3;
+                    m_group = 'custom_body', m_num = 6, partener.click();
+                } else if (avg_laugh > 100 && m_mouth > 0.53) {
+                    m_flag = 4;
+                    m_group = 'custom_body', m_num = 7, partener.click();
+                }
+            };
+
+            function getUrl(image_code) {
+                var blob = new Blob([image_code], { type: "image/jpeg" });
+
+                var domURL = self.URL || self.webkitURL || self,
+                    url = domURL.createObjectURL(blob);
+
+                return url;
+            };
+        }
+    </script>
+</body>
+
+</html>
