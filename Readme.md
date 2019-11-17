@@ -2,7 +2,8 @@
 
 ## Kizuna-Ai MMD demo : face capture via single RGB camera
 
-![kizuna](docs/images/one.gif)
+![kizuna1](docs/images/one.gif)
+![kizuna2](docs/images/two.gif)
 
 
 ## Installation
