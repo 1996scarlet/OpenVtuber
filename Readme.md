@@ -5,11 +5,11 @@ Kizuna-Ai MMD demo : face capture via single RGB camera
 <p align="center"><img src="docs/images/one.gif" /></p>
 <p align="center"><img src="docs/images/two.gif" /></p>
 
-## Installation
+## 安装与运行 （Installation）
 
 ### Requirements
 
-* Python 3.5+
+* Python 3.7+
 * Linux, Windows or macOS
 * mxnet (>=1.4)
 * node.js and npm or yarn
@@ -20,7 +20,7 @@ While not required, for optimal performance(especially for the detector) it is h
 
 * `node ./NodeServer/server.js`
 * `make -C ./PythonClient/rcnn/`
-* `python3.7 ./PythonClient/vtuber_usb_camera.py --gpu -1`
+* `python3 ./PythonClient/vtuber_usb_camera.py --gpu -1`
 
 ## 人脸检测 （Face Detection）
 
@@ -35,10 +35,8 @@ However, since the detection target of the face capture system is in the middle-
 
 ## 特征点检测（Facial Landmarks Tracking）
 
-The 2D pre-trained model is from the [deep-face-alignment](https://github.com/deepinx/deep-face-alignment) repository.
+The 2D pre-trained model is from the [deep-face-alignment](https://github.com/deepinx/deep-face-alignment) repository, based on the heatmap regression face alignment algorithm at [TPAMI 2019](https://arxiv.org/pdf/1808.04803.pdf). The model is trained on i-bug 300-W datasets, which annotated as below:
 
-* Algorithm from [TPAMI 2019](https://arxiv.org/pdf/1808.04803.pdf)
-* Training set is based on i-bug 300-W datasets. It's annotation is shown below:<br><br>
 ![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG)
 
 ## 头部姿态估计（Head Pose Estimation）
@@ -47,16 +45,16 @@ The 2D pre-trained model is from the [deep-face-alignment](https://github.com/de
 
 ## 注视估计（Gaze Estimation)
 
+3D Gaze Estimation is based on
+
+and the head posed
+
 * [Laser Eye : Gaze Estimation via Deep Neural Networks](https://github.com/1996scarlet/Laser-Eye)
-
-## MMD Loader
-
-We apply [Three.js Webgl Loader](https://threejs.org/examples/?q=MMD#webgl_loader_mmd) to  render MMD model on web pages.
 
 ## Special Thanks
 
-* [threejs.org](https://threejs.org/)
-* [kizunaai.com](http://kizunaai.com/)
+* [threejs.org](https://threejs.org/): Applying Three.js WebGL Loader to render MMD models on web pages.
+* [kizunaai.com](http://kizunaai.com/): モデルは無料でご利用いただけます.
 
 ## Citation
 
