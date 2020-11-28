@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>MMD loader</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<link type="text/css" rel="stylesheet" href="main.css">
+	<style>
+		body {
+			background-color: #fff;
+			color: #444;
+		}
+
+		a {
+			color: #08f;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="info">
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - MMDLoader<br />
+	</div>
+	<script src="./socket.io.slim.js"></script>
+
+	<script src="ammo.js"></script>
+
+	<script type="module">
+
+		import * as THREE from './three.module.js';
+
+		import Stats from './stats.module.js';
+		import { GUI } from './dat.gui.module.js';
+
+		import { OrbitControls } from './OrbitControls.js';
+		import { OutlineEffect } from './OutlineEffect.js';
+		import { MMDLoader } from './MMDLoader.js';
+		import { MMDAnimationHelper } from './MMDAnimationHelper.js';
+
+		var container, stats;
+
+		var mesh, camera, scene, renderer, effect;
+		var helper, ikHelper, physicsHelper;
+
+		var head, left_eye, right_eye, angle_const = 3.1415926 / 180;
+		var before_left_eye, before_right_eye;
+
+		var socket = io("http://127.0.0.1:6789/kizuna");
+		var websocketClose = () => socket.close();
+
+		socket.on('result_download', (result) => {
+			requestAnimationFrame(() => animate(result));
+		});
+
+		var clock = new THREE.Clock();
+
+		Ammo().then(function (AmmoLib) {
+
+			Ammo = AmmoLib;
+
+			init();
+
+		});
+
+
+		function init() {
+
+			container = document.createElement('div');
+			document.body.appendChild(container);
+
+			camera = new THREE.PerspectiveCamera(20, window.innerWidth / window.innerHeight, 1, 100);
+			camera.position.set(0, 0, 20);
+
+			// scene
+
+			scene = new THREE.Scene();
+			scene.background = new THREE.Color(0xffffff);
+
+			var gridHelper = new THREE.PolarGridHelper(30, 10);
+			gridHelper.position.y = - 10;
+			scene.add(gridHelper);
+
+			var ambient = new THREE.AmbientLight(0x666666);
+			scene.add(ambient);
+
+			var directionalLight = new THREE.DirectionalLight(0x887766);
+			directionalLight.position.set(- 1, 1, 1).normalize();
+			scene.add(directionalLight);
+
+			//
+
+			renderer = new THREE.WebGLRenderer({ antialias: true });
+			renderer.setPixelRatio(window.devicePixelRatio);
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			container.appendChild(renderer.domElement);
+
+			effect = new OutlineEffect(renderer);
+
+			// STATS
+
+			stats = new Stats();
+			container.appendChild(stats.dom);
+
+			// model
+
+			function onProgress(xhr) {
+
+				if (xhr.lengthComputable) {
+					var percentComplete = xhr.loaded / xhr.total * 100;
+					console.log(Math.round(percentComplete, 2) + '% downloaded');
+				}
+
+			}
+
+			var modelFile = 'models/kizunaai/kizunaai.pmx';
+
+			helper = new MMDAnimationHelper({
+				afterglow: 2.0
+			});
+
+			var loader = new MMDLoader();
+			loader.load(modelFile, function (mesh) {
+
+				mesh.position.y = - 18;
+				scene.add(mesh);
+
+				helper.add(mesh, {
+					physics: true
+				});
+
+				ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
+				ikHelper.visible = false;
+				scene.add(ikHelper);
+
+				physicsHelper = helper.objects.get(mesh).physics.createHelper();
+				physicsHelper.visible = false;
+				scene.add(physicsHelper);
+
+				initGui();
+
+				var bones = physicsHelper.physics.mesh.skeleton.bones;
+
+				head = bones[8];
+				left_eye = bones[86];
+				right_eye = bones[88];
+
+				// requestAnimationFrame(() => animate({ 'euler': [0, 0, 0], 'eye': [0, 0, 0, 0] }));
+
+			}, onProgress, null);
+
+			var controls = new OrbitControls(camera, renderer.domElement);
+
+			window.addEventListener('resize', onWindowResize, false);
+
+			var phongMaterials;
+			var originalMaterials;
+
+			function makePhongMaterials(materials) {
+
+				var array = [];
+
+				for (var i = 0, il = materials.length; i < il; i++) {
+
+					var m = new THREE.MeshPhongMaterial();
+					m.copy(materials[i]);
+					m.needsUpdate = true;
+
+					array.push(m);
+
+				}
+
+				phongMaterials = array;
+
+			}
+
+			function initGui() {
+
+				var api = {
+					'animation': false,
+					'gradient mapping': true,
+					'ik': true,
+					'outline': true,
+					'physics': true,
+					'show IK bones': false,
+					'show rigid bodies': true
+				};
+
+				var gui = new GUI();
+
+				gui.add(api, 'animation').onChange(function () {
+
+					helper.enable('animation', api['animation']);
+
+				});
+
+				gui.add(api, 'gradient mapping').onChange(function () {
+
+					if (originalMaterials === undefined) originalMaterials = mesh.material;
+					if (phongMaterials === undefined) makePhongMaterials(mesh.material);
+
+					if (api['gradient mapping']) {
+
+						mesh.material = originalMaterials;
+
+					} else {
+
+						mesh.material = phongMaterials;
+
+					}
+
+				});
+
+				gui.add(api, 'ik').onChange(function () {
+
+					helper.enable('ik', api['ik']);
+
+				});
+
+				gui.add(api, 'outline').onChange(function () {
+
+					effect.enabled = api['outline'];
+
+				});
+
+				gui.add(api, 'physics').onChange(function () {
+
+					helper.enable('physics', api['physics']);
+
+				});
+
+				gui.add(api, 'show IK bones').onChange(function () {
+
+					ikHelper.visible = api['show IK bones'];
+
+				});
+
+				gui.add(api, 'show rigid bodies').onChange(function () {
+
+					if (physicsHelper !== undefined) physicsHelper.visible = api['show rigid bodies'];
+
+				});
+
+			}
+
+		}
+
+		function onWindowResize() {
+
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+
+			effect.setSize(window.innerWidth, window.innerHeight);
+
+		}
+
+		function animate(result) {
+
+			stats.begin();
+			render(result);
+			stats.end();
+
+		}
+
+		function render(result) {
+
+			var euler = result.euler;
+			// var eye_euler = result.eye;
+
+			if (head) {
+				head.rotation.x = -euler[0] * angle_const;
+				head.rotation.y = euler[1] * angle_const;
+				head.rotation.z = euler[2] * angle_const;
+			}
+			
+			console.log(euler);
+
+			// if (left_eye) {
+			// 	left_eye.rotation.y = eye_euler[0];
+			// 	left_eye.rotation.x = eye_euler[1];
+			// }
+			// if (right_eye) {
+			// 	right_eye.rotation.y = eye_euler[0];
+			// 	right_eye.rotation.x = eye_euler[1];
+			// }
+
+			helper.update(clock.getDelta());
+			effect.render(scene, camera);
+		}
+
+	</script>
+
+</body>
+
+</html>

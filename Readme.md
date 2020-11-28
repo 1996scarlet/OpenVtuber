@@ -35,7 +35,7 @@ However, since the detection target of the face capture system is in the middle-
 
 ## 特征点检测（Facial Landmarks Tracking）
 
-In this project, we applying facial landmarks for calculating head pose and slice the eye regions for gaze estimation.
+In this project, we applying facial landmarks for calculating head pose and slicing the eye regions for gaze estimation.
 
 The 2D pre-trained model is provided by [deep-face-alignment](https://github.com/deepinx/deep-face-alignment) repository, based on the heatmap regression face alignment algorithm at [TPAMI 2019](https://arxiv.org/pdf/1808.04803.pdf). The model is trained on i-bug 300-W datasets, which annotated as below:
 
