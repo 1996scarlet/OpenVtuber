@@ -12,6 +12,7 @@ import time
 import socketio
 
 cap = cv2.VideoCapture(sys.argv[1])
+
 fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
                             conf_threshold=0.95)
 fa = CoordinateAlignmentModel("pretrained/coor_2d106_face_alignment.tflite")
@@ -20,7 +21,6 @@ hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
 gs = IrisLocalizationModel("pretrained/iris_localization.tflite")
 
 QUEUE_BUFFER_SIZE = 18
-RUNNING_FLAG = True
 
 box_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
 landmark_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
@@ -49,7 +49,7 @@ sio.connect("http://127.0.0.1:6789")
 
 
 def face_detection():
-    while RUNNING_FLAG:
+    while True:
         ret, frame = cap.read()
 
         if not ret:
@@ -60,52 +60,61 @@ def face_detection():
 
 
 def face_alignment():
-    while RUNNING_FLAG:
+    while True:
         frame, boxes = box_queue.get()
         landmarks = fa.get_landmarks(frame, boxes)
         landmark_queue.put((frame, landmarks))
 
 
 def iris_localization(YAW_THD=45, thickness=1):
-    while RUNNING_FLAG:
+    while True:
         frame, preds = landmark_queue.get()
         preds = list(preds)
 
         for landmarks in preds:
             # calculate head pose
-            _, euler_angle = hp.get_head_pose(landmarks)
-            pitch, yaw, roll = euler_angle[:, 0]
+            euler_angle = hp.get_head_pose(landmarks).flatten()
+            pitch, yaw, roll = euler_angle
 
-            print(pitch)
-
-            if roll < 0:
-                roll = -180 - roll
-            else:
-                roll = 180 - roll
-
+            eye_starts = landmarks[[35, 89]]
+            eye_ends = landmarks[[39, 93]]
             eye_centers = landmarks[[34, 88]]
-            eye_lengths = (landmarks[[39, 93]] - landmarks[[35, 89]])[:, 0]
+            eye_lengths = (eye_ends - eye_starts)[:, 0]
 
-            # start_time = time.perf_counter()
+            face_center = np.mean(landmarks, axis=0)
+
+            pupils = eye_centers.copy()
 
             if yaw > -YAW_THD:
                 iris_left = gs.get_mesh(frame, eye_lengths[0], eye_centers[0])
-                gs.draw_pupil(iris_left, frame, thickness=thickness)
-
-            # print(time.perf_counter()-start_time)
+                pupils[0] = iris_left[0]
 
             if yaw < YAW_THD:
                 iris_right = gs.get_mesh(frame, eye_lengths[1], eye_centers[1])
-                gs.draw_pupil(iris_right, frame, thickness=thickness)
+                pupils[1] = iris_right[0]
 
-            result_string = {'euler': (pitch, yaw, roll)}
+            poi = eye_starts, eye_ends, pupils, eye_centers
+
+            theta, pha, _ = gs.calculate_3d_gaze(poi)
+            mouth_open_percent = (
+                landmarks[60, 1] - landmarks[62, 1]) / (landmarks[53, 1] - landmarks[71, 1])
+            left_eye_status = (
+                landmarks[33, 1] - landmarks[40, 1]) / eye_lengths[0]
+            right_eye_status = (
+                landmarks[87, 1] - landmarks[94, 1]) / eye_lengths[1]
+            result_string = {'euler': (pitch, -yaw, -roll),
+                             'eye': (theta.mean(), pha.mean()),
+                             'mouth': mouth_open_percent,
+                             'blink': (left_eye_status, right_eye_status)}
             sio.emit('result_data', result_string, namespace='/kizuna')
+            # hp.draw_axis(frame, euler_angle, face_center)
+            break
 
-        upstream_queue.put((frame, preds))
+        # upstream_queue.put((frame, preds))
 
 
 def draw(color=(125, 255, 0), thickness=2):
-    while RUNNING_FLAG:
+    while True:
         frame, landmarks = upstream_queue.get()
 
         # for pred in landmarks:
@@ -118,17 +127,14 @@ def draw(color=(125, 255, 0), thickness=2):
     cv2.destroyAllWindows()
 
 
-draw_thread = Thread(target=draw)
-draw_thread.start()
+# draw_thread = Thread(target=draw)
+# draw_thread.start()
 
 iris_thread = Thread(target=iris_localization)
 iris_thread.start()
 
 alignment_thread = Thread(target=face_alignment)
 alignment_thread.start()
-
-# detection_thread = Thread(target=face_detection)
-# detection_thread.start()
 
 face_detection()
 cap.release()

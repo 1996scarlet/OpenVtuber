@@ -7,90 +7,119 @@ import time
 class HeadPoseEstimator:
 
     def __init__(self, filepath, W, H) -> None:
-        _predefined = np.load(filepath, allow_pickle=True)
-        self.object_pts, self.r_vec, self.t_vec = _predefined
+        self.object_pts = np.float32([
+            [1.330353, 7.122144, 6.903745],  # 29
+            [2.533424, 7.878085, 7.451034],
+            [4.861131, 7.878672, 6.601275],
+            [6.137002, 7.271266, 5.200823],
+            [6.825897, 6.760612, 4.402142],
+            [-1.330353, 7.122144, 6.903745],  # 34
+            [-2.533424, 7.878085, 7.451034],
+            [-4.861131, 7.878672, 6.601275],
+            [-6.137002, 7.271266, 5.200823],
+            [-6.825897, 6.760612, 4.402142],
+            [5.311432, 5.485328, 3.987654],  # 13
+            [4.461908, 6.189018, 5.594410],
+            [3.550622, 6.185143, 5.712299],
+            [2.542231, 5.862829, 4.687939],
+            [1.789930, 5.393625, 4.413414],
+            [2.693583, 5.018237, 5.072837],
+            [3.530191, 4.981603, 4.937805],
+            [4.490323, 5.186498, 4.694397],
+            [-5.311432, 5.485328, 3.987654],  # 21
+            [-4.461908, 6.189018, 5.594410],
+            [-3.550622, 6.185143, 5.712299],
+            [-2.542231, 5.862829, 4.687939],
+            [-1.789930, 5.393625, 4.413414],
+            [-2.693583, 5.018237, 5.072837],
+            [-3.530191, 4.981603, 4.937805],
+            [-4.490323, 5.186498, 4.694397],
+            [0.981972, 4.554081, 6.301271],  # 57
+            [-0.981972, 4.554081, 6.301271],  # 47
+            [-1.930245, 0.424351, 5.914376],  # 50
+            [-0.746313, 0.348381, 6.263227],
+            [0.000000, 0.000000, 6.763430],  # 52
+            [0.746313, 0.348381, 6.263227],
+            [1.930245, 0.424351, 5.914376],  # 54
+            [0.000000, 1.916389, 7.700000],  # nose tip
+            [-2.774015, -2.080775, 5.048531],  # 39
+            [0.000000, -1.646444, 6.704956],  # 41
+            [2.774015, -2.080775, 5.048531],  # 43
+            [0.000000, -3.116408, 6.097667],  # 45
+            [0.000000, -7.415691, 4.070434],
+        ])
         self.cam_matrix = np.array([[W, 0, W/2.0],
                                     [0, W, H/2.0],
                                     [0, 0, 1]])
 
-        self.origin_width = 144.76935
-        self.origin_height = 139.839
-
     def get_head_pose(self, shape):
-        if len(shape) == 68:
-            image_pts = shape
-        elif len(shape) == 106:
+        if len(shape) == 106:
             image_pts = shape[[
-                9, 10, 11, 14, 16, 3, 7, 8, 0,
-                24, 23, 19, 32, 30, 27, 26, 25,
-                43, 48, 49, 51, 50, 102, 103, 104, 105, 101,
-                72, 73, 74, 86, 78, 79, 80, 85, 84,
-                35, 41, 42, 39, 37, 36, 89, 95, 96, 93, 91, 90,
-                52, 64, 63, 71, 67, 68, 61, 58, 59, 53, 56, 55,
-                65, 66, 62, 70, 69, 57, 60, 54
+                50, 51, 49, 48, 43,
+                102, 103, 104, 105, 101,
+                35, 41, 40, 42, 39, 37, 33, 36,
+                93, 96, 94, 95, 89, 90, 87, 91,
+                75, 81,
+                84, 85, 80, 79, 78,
+                86,
+                61, 71, 52, 53,
+                0
             ]]
         else:
             raise RuntimeError('Unsupported shape format')
 
-        # start_time = time.perf_counter()
+        ret, rotation_vec, translation_vec = cv2.solvePnP(self.object_pts,
+                                                          image_pts,
+                                                          cameraMatrix=self.cam_matrix,
+                                                          distCoeffs=None)
 
-        ret, rotation_vec, translation_vec = cv2.solvePnP(
-            self.object_pts,
-            image_pts,
-            cameraMatrix=self.cam_matrix,
-            distCoeffs=None,
-            rvec=self.r_vec,
-            tvec=self.t_vec,
-            useExtrinsicGuess=True)
-
-        rear_depth = -150
-        front_depth = 0
-
-        left_width = -75
-        top_height = -90
-        right_width = 75
-        bottom_height = 90
-
-        reprojectsrc = np.float32([[left_width, bottom_height, rear_depth],
-                                   [right_width, bottom_height, rear_depth],
-                                   [right_width, top_height, rear_depth],
-                                   [left_width, top_height, rear_depth],
-                                   # -------------------------------------
-                                   [left_width, bottom_height, front_depth],
-                                   [right_width, bottom_height, front_depth],
-                                   [right_width, top_height, front_depth],
-                                   [left_width, top_height, front_depth]])
-
-        reprojectdst, _ = cv2.projectPoints(reprojectsrc,
-                                            rotation_vec,
-                                            translation_vec,
-                                            self.cam_matrix,
-                                            distCoeffs=None)
-
-        # reprojectdst += 16 * np.random.rand(*reprojectdst.shape)
-        # end_time = time.perf_counter()
-        # print(end_time - start_time)
-
-        # calc euler angle
-        rotation_mat, _ = cv2.Rodrigues(rotation_vec)
+        rotation_mat = cv2.Rodrigues(rotation_vec)[0]
         pose_mat = cv2.hconcat((rotation_mat, translation_vec))
         euler_angle = cv2.decomposeProjectionMatrix(pose_mat)[-1]
 
-        return reprojectdst.astype(np.int32), euler_angle
+        return euler_angle
 
     @staticmethod
-    def draw_head_pose_box(src, pts, color=(0, 255, 255), thickness=2, copy=False):
+    def draw_axis(img, euler_angle, center, size=80, angle_const=np.pi/180, copy=False):
         if copy:
-            src = src.copy()
+            img = img.copy()
 
-        pts = pts.reshape(-1, 4, 2)
+        euler_angle *= angle_const
+        sin_pitch, sin_yaw, sin_roll = np.sin(euler_angle)
+        cos_pitch, cos_yaw, cos_roll = np.cos(euler_angle)
 
-        cv2.polylines(src, pts.reshape(-1, 4, 2), True, color, thickness)
+        # X-Axis pointing to right. drawn in red
+        x_axis = np.array([
+            cos_yaw * cos_roll,
+            cos_pitch * sin_roll + cos_roll * sin_pitch * sin_yaw
+        ])
+        x_axis *= size
+        x_axis += center
 
-        for i in range(len(pts[0])):
-            cv2.line(src, tuple(pts[0][i]), tuple(pts[1][i]), color, thickness)
+        # Y-Axis | drawn in green
+        #        v
+        y_axis = np.array([
+            -cos_yaw * sin_roll,
+            cos_pitch * cos_roll - sin_pitch * sin_yaw * sin_roll
+        ])
+        y_axis *= size
+        y_axis += center
 
-        return src
+        # Z-Axis (out of the screen) drawn in blue
+        z_axis = np.array([
+            sin_yaw,
+            -cos_yaw * sin_pitch
+        ])
+        z_axis *= size
+        z_axis += center
+
+        tp_center = tuple(center.astype(int))
+
+        cv2.line(img, tp_center, tuple(x_axis.astype(int)), (0, 0, 255), 3)
+        cv2.line(img, tp_center, tuple(y_axis.astype(int)), (0, 255, 0), 3)
+        cv2.line(img, tp_center, tuple(z_axis.astype(int)), (255, 0, 0), 3)
+
+        return img
 
 
 def main(filename):
@@ -99,16 +128,15 @@ def main(filename):
     from TFLiteFaceAlignment import CoordinateAlignmentModel
 
     cap = cv2.VideoCapture(filename)
-    # cap.set(cv2.CAP_PROP_POS_FRAMES, 300)
 
     fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
-                            conf_threshold=0.95)
-    fa = CoordinateAlignmentModel("pretrained/coor_2d106_face_alignment.tflite")
+                                conf_threshold=0.95)
+    fa = CoordinateAlignmentModel(
+        "pretrained/coor_2d106_face_alignment.tflite")
     hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
-                        cap.get(3), cap.get(4))
+                           cap.get(3), cap.get(4))
 
     color = (125, 255, 125)
-    counter = 0
 
     while True:
         ret, frame = cap.read()
@@ -119,28 +147,15 @@ def main(filename):
         bboxes, _ = fd.inference(frame)
 
         for pred in fa.get_landmarks(frame, bboxes):
-            # pred += 18 * np.random.rand(*pred.shape)
-            # for p in np.round(pred).astype(np.int):
-            #     cv2.circle(frame, tuple(p), 1, color, 1, cv2.LINE_AA)
-            reprojectdst, euler_angle = hp.get_head_pose(pred)
-            hp.draw_head_pose_box(frame, reprojectdst, thickness=4)
+            for p in np.round(pred).astype(np.int):
+                cv2.circle(frame, tuple(p), 1, color, 1, cv2.LINE_AA)
+            face_center = np.mean(pred, axis=0)
+            euler_angle = hp.get_head_pose(pred).flatten()
+            print(*euler_angle)
+            hp.draw_axis(frame, euler_angle, face_center)
 
-            # cv2.putText(frame, "X: " + "{:7.2f}".format(euler_angle[0, 0]), (20, 20), cv2.FONT_HERSHEY_SIMPLEX,
-            #             0.75, (0, 0, 0), thickness=2)
-            # cv2.putText(frame, "Y: " + "{:7.2f}".format(euler_angle[1, 0]), (20, 50), cv2.FONT_HERSHEY_SIMPLEX,
-            #             0.75, (0, 0, 0), thickness=2)
-            # cv2.putText(frame, "Z: " + "{:7.2f}".format(euler_angle[2, 0]), (20, 80), cv2.FONT_HERSHEY_SIMPLEX,
-            #             0.75, (0, 0, 0), thickness=2)
-
-        # frame = frame[150:800, 800:1600, :]  # navi
-        # frame = frame[0:480, 380:920, :]  # dress
-        # frame = frame[190:514, 0:288, :]  # punch
         cv2.imshow("result", frame)
-        # cv2.imwrite(f"../videos/head_stable/punch{counter:0>3}.png", frame)
-        # cv2.imwrite(f"../videos/head_jitter/punch{counter:0>3}.png", frame)
-        counter += 1
-
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(0) == ord('q'):
             break
 
 

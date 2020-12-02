@@ -44,7 +44,6 @@
 		var helper, ikHelper, physicsHelper;
 
 		var head, left_eye, right_eye, angle_const = 3.1415926 / 180;
-		var before_left_eye, before_right_eye;
 
 		var socket = io("http://127.0.0.1:6789/kizuna");
 		var websocketClose = () => socket.close();
@@ -57,10 +56,26 @@
 
 		Ammo().then(function (AmmoLib) {
 
+			setTimeout(function () {
+				// 30 25 24 21 20 19 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1 0
+
+				// happy_eye_close: 0, 2, 3
+				// neutral_eye_close: 1, 4, 5
+				// blink: none -> 6 -> 1 -> 7 -> 8 -> none
+
+				// mouth: 9 -> 13 -> 14 -> 12 -> 16 -> 17 -> 11
+				// teeth: 10 15 21
+				// happy/unhappy: 18 19
+				// what?: 20
+
+				// mesh.morphTargetInfluences[11] = 1;
+				requestAnimationFrame(() => animate({ 'euler': [0, 0, 0], 'eye': [0, 0] }));
+				// console.log(mesh)
+			}, 2000);
+
 			Ammo = AmmoLib;
 
 			init();
-
 		});
 
 
@@ -88,8 +103,6 @@
 			directionalLight.position.set(- 1, 1, 1).normalize();
 			scene.add(directionalLight);
 
-			//
-
 			renderer = new THREE.WebGLRenderer({ antialias: true });
 			renderer.setPixelRatio(window.devicePixelRatio);
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -110,7 +123,6 @@
 					var percentComplete = xhr.loaded / xhr.total * 100;
 					console.log(Math.round(percentComplete, 2) + '% downloaded');
 				}
-
 			}
 
 			var modelFile = 'models/kizunaai/kizunaai.pmx';
@@ -120,14 +132,14 @@
 			});
 
 			var loader = new MMDLoader();
-			loader.load(modelFile, function (mesh) {
+			loader.load(modelFile, function (object) {
 
-				mesh.position.y = - 18;
+				mesh = object;
+				mesh.position.y = -18;
+
 				scene.add(mesh);
 
-				helper.add(mesh, {
-					physics: true
-				});
+				helper.add(mesh, { physics: true });
 
 				ikHelper = helper.objects.get(mesh).ikSolver.createHelper();
 				ikHelper.visible = false;
@@ -139,14 +151,6 @@
 
 				initGui();
 
-				var bones = physicsHelper.physics.mesh.skeleton.bones;
-
-				head = bones[8];
-				left_eye = bones[86];
-				right_eye = bones[88];
-
-				// requestAnimationFrame(() => animate({ 'euler': [0, 0, 0], 'eye': [0, 0, 0, 0] }));
-
 			}, onProgress, null);
 
 			var controls = new OrbitControls(camera, renderer.domElement);
@@ -155,6 +159,8 @@
 
 			var phongMaterials;
 			var originalMaterials;
+
+
 
 			function makePhongMaterials(materials) {
 
@@ -241,6 +247,13 @@
 
 				});
 
+				var bones = physicsHelper.physics.mesh.skeleton.bones;
+
+				console.log(bones)
+
+				head = bones[8];
+				left_eye = bones[86];
+				right_eye = bones[88];
 			}
 
 		}
@@ -265,27 +278,55 @@
 		function render(result) {
 
 			var euler = result.euler;
-			// var eye_euler = result.eye;
+			var eye_euler = result.eye;
+			var mouth = result.mouth;
+			var blink = result.blink;
 
 			if (head) {
-				head.rotation.x = -euler[0] * angle_const;
+				head.rotation.x = euler[0] * angle_const;
 				head.rotation.y = euler[1] * angle_const;
 				head.rotation.z = euler[2] * angle_const;
 			}
-			
-			console.log(euler);
 
-			// if (left_eye) {
-			// 	left_eye.rotation.y = eye_euler[0];
-			// 	left_eye.rotation.x = eye_euler[1];
-			// }
-			// if (right_eye) {
-			// 	right_eye.rotation.y = eye_euler[0];
-			// 	right_eye.rotation.x = eye_euler[1];
-			// }
+			if (left_eye) {
+				left_eye.rotation.y = eye_euler[0];
+				left_eye.rotation.x = eye_euler[1];
+			}
+			if (right_eye) {
+				right_eye.rotation.y = eye_euler[0];
+				right_eye.rotation.x = eye_euler[1];
+			}
+
+			var mouth_index, eye_index;
+
+			if (mouth > 0.6) mouth_index = 9;
+			else if (mouth > 0.4) mouth_index = 12;
+			else if (mouth > 0.2) mouth_index = 11;
+
+			if (blink) {
+				if (blink[0] < 0.1 && blink[1] < 0.1) eye_index = 1;
+				else if (blink[0] < 0.1) eye_index = 4;
+				else if (blink[1] < 0.1) eye_index = 5;
+			}
+
+			if (mouth_index) {
+				mesh.morphTargetInfluences[mouth_index] = 1;
+			}
+
+			if (eye_index) {
+				mesh.morphTargetInfluences[eye_index] = 1;
+			}
 
 			helper.update(clock.getDelta());
 			effect.render(scene, camera);
+
+			if (mouth_index) {
+				mesh.morphTargetInfluences[mouth_index] = 0;
+			}
+
+			if (eye_index) {
+				mesh.morphTargetInfluences[eye_index] = 0;
+			}
 		}
 
 	</script>

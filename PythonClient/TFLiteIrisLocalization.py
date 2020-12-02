@@ -91,6 +91,42 @@ class IrisLocalizationModel():
         landmarks = landmarks.astype(np.int32)
         cv2.polylines(frame, landmarks, close, color, thickness, cv2.LINE_AA)
 
+    @staticmethod
+    def calculate_3d_gaze(poi, scale=256):
+        SIN_LEFT_THETA = 2 * np.sin(np.pi / 4)
+        SIN_UP_THETA = np.sin(np.pi / 6)
+
+        starts, ends, pupils, centers = poi
+
+        eye_length = np.linalg.norm(starts - ends, axis=1)
+        ic_distance = np.linalg.norm(pupils - centers, axis=1)
+        zc_distance = np.linalg.norm(pupils - starts, axis=1)
+
+        s0 = (starts[:, 1] - ends[:, 1]) * pupils[:, 0]
+        s1 = (starts[:, 0] - ends[:, 0]) * pupils[:, 1]
+        s2 = starts[:, 0] * ends[:, 1]
+        s3 = starts[:, 1] * ends[:, 0]
+
+        delta_y = (s0 - s1 + s2 - s3) / eye_length / 2
+        delta_x = np.sqrt(abs(ic_distance**2 - delta_y**2))
+
+        delta = np.array((delta_x * SIN_LEFT_THETA,
+                          delta_y * SIN_UP_THETA))
+        delta /= eye_length
+        theta, pha = np.arcsin(delta)
+
+        # print(f"THETA:{180 * theta / pi}, PHA:{180 * pha / pi}")
+        # delta[0, abs(theta) < 0.1] = 0
+        # delta[1, abs(pha) < 0.03] = 0
+
+        inv_judge = zc_distance**2 - delta_y**2 < eye_length**2 / 4
+
+        delta[0, inv_judge] *= -1
+        theta[inv_judge] *= -1
+        delta *= scale
+
+        return theta, pha, delta.T
+
 
 if __name__ == "__main__":
     import sys
@@ -127,7 +163,7 @@ if __name__ == "__main__":
 
         for landmarks in fa.get_landmarks(frame, bboxes):
             # calculate head pose
-            _, euler_angle = hp.get_head_pose(landmarks)
+            euler_angle = hp.get_head_pose(landmarks)
             pitch, yaw, roll = euler_angle[:, 0]
 
             eye_markers = np.take(landmarks, fa.eye_bound, axis=0)
@@ -138,17 +174,25 @@ if __name__ == "__main__":
             # eye_lengths = np.linalg.norm(landmarks[[39, 93]] - landmarks[[35, 89]], axis=1)
             eye_lengths = (landmarks[[39, 93]] - landmarks[[35, 89]])[:, 0]
 
+            pupils = eye_centers.copy()
+
             if yaw > -YAW_THD:
                 iris_left = gs.get_mesh(frame, eye_lengths[0], eye_centers[0])
-                gs.draw_pupil(iris_left, frame, thickness=1)
+                pupils[0], _ = gs.draw_pupil(iris_left, frame, thickness=1)
 
             if yaw < YAW_THD:
                 iris_right = gs.get_mesh(frame, eye_lengths[1], eye_centers[1])
-                gs.draw_pupil(iris_right, frame, thickness=1)
+                pupils[1], _ = gs.draw_pupil(iris_right, frame, thickness=1)
+
+            poi = landmarks[[35, 89]], landmarks[[39, 93]], pupils, eye_centers
+
+            theta, pha, _ = gs.calculate_3d_gaze(poi)
+
+            print(theta.mean(), pha.mean())
 
             gs.draw_eye_markers(eye_markers, frame, thickness=1)
 
-        cv2.imshow('res', frame)
+        # cv2.imshow('res', frame)
         # cv2.imwrite(f'./asset/orign_dress/img{counter:0>3}.png', frame)
 
         counter += 1
