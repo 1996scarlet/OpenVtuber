@@ -1,4 +1,4 @@
-# OpenVtuber-虚拟爱抖露共享计划
+# OpenVtuber-虚拟アイドル共享计划
 
 Kizuna-Ai MMD demo : face capture via single RGB camera
 
@@ -9,18 +9,18 @@ Kizuna-Ai MMD demo : face capture via single RGB camera
 
 ### Requirements
 
-* Python 3.7+
-* Linux, Windows or macOS
-* mxnet (>=1.4)
+* Python 3.6+
+* tensorflow 2.2+
 * node.js and npm or yarn
 
 While not required, for optimal performance(especially for the detector) it is highly recommended to run the code using a CUDA enabled GPU.
 
 ### Run
 
-* `node ./NodeServer/server.js`
-* `make -C ./PythonClient/rcnn/`
-* `python3 ./PythonClient/vtuber_usb_camera.py --gpu -1`
+* `cd NodeServer`
+* `yarn start`
+* `cd ../PythonClient`
+* `python3 vtuber_usb_camera.py <your video path>`
 
 ## 人脸检测 （Face Detection）
 
@@ -45,7 +45,7 @@ The 2D pre-trained model is provided by [deep-face-alignment](https://github.com
 
 * [head-pose-estimation](https://github.com/lincolnhard/head-pose-estimation)
 
-## 注视估计（Gaze Estimation）
+## Iris Localization
 
 3D Gaze Estimation is based on
 

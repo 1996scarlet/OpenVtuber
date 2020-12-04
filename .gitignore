@@ -4,3 +4,4 @@ node_modules/
 *.so
 *.mp4
 
+__pycache__

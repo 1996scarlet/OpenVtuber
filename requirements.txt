@@ -1,3 +1,4 @@
+tensorflow
 numpy
 opencv-python
 python-socketio
