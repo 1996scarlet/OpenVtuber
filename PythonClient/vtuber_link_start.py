@@ -81,7 +81,6 @@ def iris_localization(YAW_THD=45, thickness=1):
             eye_centers = landmarks[[34, 88]]
             eye_lengths = (eye_ends - eye_starts)[:, 0]
 
-            face_center = np.mean(landmarks, axis=0)
 
             pupils = eye_centers.copy()
 
@@ -107,19 +106,19 @@ def iris_localization(YAW_THD=45, thickness=1):
                              'mouth': mouth_open_percent,
                              'blink': (left_eye_status, right_eye_status)}
             sio.emit('result_data', result_string, namespace='/kizuna')
-            # hp.draw_axis(frame, euler_angle, face_center)
+            upstream_queue.put((frame, landmarks, euler_angle))
             break
-
-        # upstream_queue.put((frame, preds))
 
 
 def draw(color=(125, 255, 0), thickness=2):
     while True:
-        frame, landmarks = upstream_queue.get()
+        frame, landmarks, euler_angle = upstream_queue.get()
 
-        # for pred in landmarks:
-        #     for p in np.round(pred).astype(np.int):
-        #         cv2.circle(frame, tuple(p), 1, color, thickness, cv2.LINE_AA)
+        for p in np.round(landmarks).astype(np.int):
+            cv2.circle(frame, tuple(p), 1, color, thickness, cv2.LINE_AA)
+
+        # face_center = np.mean(landmarks, axis=0)
+        # hp.draw_axis(frame, euler_angle, face_center)
 
         cv2.imshow('result', frame)
         cv2.waitKey(1)
@@ -127,8 +126,8 @@ def draw(color=(125, 255, 0), thickness=2):
     cv2.destroyAllWindows()
 
 
-# draw_thread = Thread(target=draw)
-# draw_thread.start()
+draw_thread = Thread(target=draw)
+draw_thread.start()
 
 iris_thread = Thread(target=iris_localization)
 iris_thread.start()

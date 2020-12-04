@@ -7,19 +7,20 @@
 </head>
 
 <body>
-	<script src="./socket.io.slim.js"></script>
+	<script src=""></script>
 
-	<script src="ammo.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/js/libs/ammo.wasm.js"></script>
 
 	<script type="module">
+		import * as THREE from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/build/three.module.js';
 
-		import * as THREE from './three.module.js';
+		import Stats from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/jsm/libs/stats.module.js';
 
-		import Stats from './stats.module.js';
-
-		import { OutlineEffect } from './OutlineEffect.js';
-		import { MMDLoader } from './MMDLoader.js';
-		import { MMDAnimationHelper } from './MMDAnimationHelper.js';
+		import { OutlineEffect } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/jsm/effects/OutlineEffect.js';
+		import { MMDLoader } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/jsm/loaders/MMDLoader.js';
+		import { MMDAnimationHelper } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/jsm/animation/MMDAnimationHelper.js';
 
 		var container, stats, helper;
 		var mesh, camera, scene, renderer, effect;
