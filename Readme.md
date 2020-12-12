@@ -1,17 +1,25 @@
 # OpenVtuber-虚拟アイドル共享计划
 
-Kizuna-Ai MMD demo : face capture via single RGB camera
-
 <p align="center"><img src="https://s3.ax1x.com/2020/12/12/rVO3FO.gif" /></p>
-<p align="center"><img src="https://s3.ax1x.com/2020/12/12/rVOYSH.gif" /></p>
+<p align="center"><img src="https://s3.ax1x.com/2020/12/12/rZeXD0.gif" /></p>
 
-## 安装与运行 （Installation）
+[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/1996scarlet/OpenVtuber.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/1996scarlet/OpenVtuber/context:python)
+[![License](https://badgen.net/github/license/1996scarlet/OpenVtuber)](LICENSE)
+[![CVPR](https://badgen.net/badge/ECCV/2018/red)](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html)
+
+OpenVtuber: An application of real-time face and gaze analyzation via deep nerual networks.
+
+* Lightweight network architecture for low computing capability devices.
+* [[ECCV 2018]](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html) 3D gaze estimation based on semantic informations.
+* Drive MMD models through a single RGB camera.
+
+## Setup
 
 ### Requirements
 
 * Python 3.6+
-* tensorflow 2.3+
-* node.js and npm or yarn
+* `pip3 install -r requirements.txt`
+* node.js and npm or [yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable)
 
 ### Socket-IO Server
 
@@ -43,7 +51,7 @@ The model is trained on 2D 106 landmarks dataset, which annotated as below:
 
 ![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG)
 
-## 头部姿态估计（Head Pose Estimation）
+## Head Pose Estimation
 
 <p align="center"><img src="docs/images/one.gif" /></p>
 
@@ -57,6 +65,10 @@ and the head posed
 
 * [Laser Eye : Gaze Estimation via Deep Neural Networks](https://github.com/1996scarlet/Laser-Eye)
 
+## Kizuna-Ai Demo
+
+face capture via single RGB camera
+
 ## Special Thanks
 
 * [threejs.org](https://threejs.org/): Applying Three.js WebGL Loader to render MMD models on web pages.
@@ -65,27 +77,11 @@ and the head posed
 ## Citation
 
 ``` bibtex
-@misc{sun2020backbone,
-      title={A Backbone Replaceable Fine-tuning Network for Stable Face Alignment},
-      author={Xu Sun and Yingjie Guo and Shihong Xia},
-      year={2020},
-      eprint={2010.09501},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-
-@article{Bulat2018Hierarchical,
-      title={Hierarchical binary CNNs for landmark localization with limited resources},
-      author={Bulat, Adrian and Tzimiropoulos, Yorgos},
-      journal={IEEE Transactions on Pattern Analysis & Machine Intelligence},
-      year={2018},
-}
-
-@InProceedings{Deng_2020_CVPR,
-      author = {Deng, Jiankang and Guo, Jia and Ververas, Evangelos and Kotsia, Irene and Zafeiriou, Stefanos},
-      title = {RetinaFace: Single-Shot Multi-Level Face Localisation in the Wild},
-      booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-      month = {June},
-      year = {2020}
+@InProceedings{Park_2018_ECCV,
+      author = {Park, Seonwook and Spurr, Adrian and Hilliges, Otmar},
+      title = {Deep Pictorial Gaze Estimation},
+      booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
+      month = {September},
+      year = {2018}
 }
 ```

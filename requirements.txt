@@ -1,4 +1,3 @@
-tensorflow
-numpy
+tensorflow >= 2.3
 opencv-python
 python-socketio == 4.6.0
