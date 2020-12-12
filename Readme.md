@@ -10,7 +10,8 @@
 OpenVtuber: An application of real-time face and gaze analyzation via deep nerual networks.
 
 * Lightweight network architecture for low computing capability devices.
-* [[ECCV 2018]](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html) 3D gaze estimation based on semantic informations.
+* 3D gaze estimation based on the whole face semantic informations.
+* The total framework is an upgradation of the [[ECCV 2018]](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html) version.
 * Drive MMD models through a single RGB camera.
 
 ## Setup
