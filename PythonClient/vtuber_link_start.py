@@ -14,7 +14,7 @@ import socketio
 cap = cv2.VideoCapture(sys.argv[1])
 
 fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
-                            conf_threshold=0.95)
+                            conf_threshold=0.98)
 fa = CoordinateAlignmentModel("pretrained/coor_2d106_face_alignment.tflite")
 hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
                        cap.get(3), cap.get(4))
@@ -52,6 +52,9 @@ def face_detection():
     while True:
         ret, frame = cap.read()
 
+        # frame = frame[150:800, 800:1600, :]
+        # frame = cv2.resize(frame, (960, 720))
+
         if not ret:
             break
 
@@ -69,7 +72,6 @@ def face_alignment():
 def iris_localization(YAW_THD=45, thickness=1):
     while True:
         frame, preds = landmark_queue.get()
-        preds = list(preds)
 
         for landmarks in preds:
             # calculate head pose
@@ -80,7 +82,6 @@ def iris_localization(YAW_THD=45, thickness=1):
             eye_ends = landmarks[[39, 93]]
             eye_centers = landmarks[[34, 88]]
             eye_lengths = (eye_ends - eye_starts)[:, 0]
-
 
             pupils = eye_centers.copy()
 
@@ -117,8 +118,10 @@ def draw(color=(125, 255, 0), thickness=2):
         for p in np.round(landmarks).astype(np.int):
             cv2.circle(frame, tuple(p), 1, color, thickness, cv2.LINE_AA)
 
-        # face_center = np.mean(landmarks, axis=0)
-        # hp.draw_axis(frame, euler_angle, face_center)
+        face_center = np.mean(landmarks, axis=0)
+        hp.draw_axis(frame, euler_angle, face_center)
+
+        frame = cv2.resize(frame, (960, 720))
 
         cv2.imshow('result', frame)
         cv2.waitKey(1)

@@ -31,6 +31,25 @@ class CoordinateAlignmentModel():
         self._get_output_tensor = partial(self._interpreter.get_tensor,
                                           output_details[0]["index"])
 
+        self.pre_landmarks = None
+
+    def _calibrate(self, pred, thd, skip=6):
+        if self.pre_landmarks is not None:
+            for i in range(pred.shape[0]):
+                if abs(self.pre_landmarks[i, 0] - pred[i, 0]) > skip:
+                    self.pre_landmarks[i, 0] = pred[i, 0]
+                elif abs(self.pre_landmarks[i, 0] - pred[i, 0]) > thd:
+                    self.pre_landmarks[i, 0] += pred[i, 0]
+                    self.pre_landmarks[i, 0] /= 2
+
+                if abs(self.pre_landmarks[i, 1] - pred[i, 1]) > skip:
+                    self.pre_landmarks[i, 1] = pred[i, 1]
+                elif abs(self.pre_landmarks[i, 1] - pred[i, 1]) > thd:
+                    self.pre_landmarks[i, 1] += pred[i, 1]  
+                    self.pre_landmarks[i, 1] /= 2
+        else:
+            self.pre_landmarks = pred
+
     def _preprocessing(self, img, bbox, factor=3.0):
         """Pre-processing of the BGR image. Adopting warp affine for face corp.
 
@@ -101,7 +120,9 @@ class CoordinateAlignmentModel():
             out = self._inference(inp)
             pred = self._postprocessing(out, M)
 
-            yield pred
+            self._calibrate(pred, 2, skip=6)
+
+            yield self.pre_landmarks
 
 
 if __name__ == '__main__':
