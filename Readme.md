@@ -2,27 +2,28 @@
 
 Kizuna-Ai MMD demo : face capture via single RGB camera
 
-<p align="center"><img src="docs/images/one.gif" /></p>
-<p align="center"><img src="docs/images/two.gif" /></p>
+<p align="center"><img src="https://s3.ax1x.com/2020/12/12/rVO3FO.gif" /></p>
+<p align="center"><img src="https://s3.ax1x.com/2020/12/12/rVOYSH.gif" /></p>
 
 ## 安装与运行 （Installation）
 
 ### Requirements
 
 * Python 3.6+
-* tensorflow 2.2+
+* tensorflow 2.3+
 * node.js and npm or yarn
 
-While not required, for optimal performance(especially for the detector) it is highly recommended to run the code using a CUDA enabled GPU.
-
-### Run
+### Socket-IO Server
 
 * `cd NodeServer`
 * `yarn start`
-* `cd ../PythonClient`
-* `python3 vtuber_usb_camera.py <your video path>`
 
-## 人脸检测 （Face Detection）
+### Python Client
+
+* `cd PythonClient`
+* `python3 vtuber_usb_camera.py <your-video-path>`
+
+## Face Detection
 
 [RetinaFace: Single-stage Dense Face Localisation in the Wild](https://openaccess.thecvf.com/content_CVPR_2020/html/Deng_RetinaFace_Single-Shot_Multi-Level_Face_Localisation_in_the_Wild_CVPR_2020_paper.html) of **CVPR 2020**, is a practical single-stage [SOTA](http://shuoyang1213.me/WIDERFACE/WiderFace_Results.html) face detector. It is highly recommended to read the official repo [RetinaFace (mxnet version)](https://github.com/deepinsight/insightface/tree/master/RetinaFace).
 
@@ -33,15 +34,18 @@ However, since the detection target of the face capture system is in the middle-
 | 9750HQ+1660TI | 0.9ms | 1.5ms | 500~1000
 | Jetson-Nano | 4.6ms | 11.4ms | 80~200
 
-## 特征点检测（Facial Landmarks Tracking）
+## Face Alignment
 
 In this project, we applying facial landmarks for calculating head pose and slicing the eye regions for gaze estimation.
 
-The 2D pre-trained model is provided by [deep-face-alignment](https://github.com/deepinx/deep-face-alignment) repository, based on the heatmap regression face alignment algorithm at [TPAMI 2019](https://arxiv.org/pdf/1808.04803.pdf). The model is trained on i-bug 300-W datasets, which annotated as below:
+The 2D pre-trained model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm.
+The model is trained on 2D 106 landmarks dataset, which annotated as below:
 
 ![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG)
 
 ## 头部姿态估计（Head Pose Estimation）
+
+<p align="center"><img src="docs/images/one.gif" /></p>
 
 * [head-pose-estimation](https://github.com/lincolnhard/head-pose-estimation)
 
