@@ -75,8 +75,8 @@ class CoordinateAlignmentModel():
 
         M = np.array([[scale, 0, cx], [0, scale, cy]])
 
-        corpped = cv2.warpAffine(img, M, self._input_shape, borderValue=0.0)
-        inp = corpped[..., ::-1].astype(np.float32)
+        cropped = cv2.warpAffine(img, M, self._input_shape, borderValue=0.0)
+        inp = cropped[..., ::-1].astype(np.float32)
 
         return inp[None, ...], M
 
@@ -120,7 +120,7 @@ class CoordinateAlignmentModel():
             out = self._inference(inp)
             pred = self._postprocessing(out, M)
 
-            self._calibrate(pred, 2, skip=6)
+            self._calibrate(pred, 1, skip=6)
 
             yield self.pre_landmarks
 

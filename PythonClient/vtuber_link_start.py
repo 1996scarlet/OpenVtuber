@@ -126,8 +126,6 @@ def draw(color=(125, 255, 0), thickness=2):
         cv2.imshow('result', frame)
         cv2.waitKey(1)
 
-    cv2.destroyAllWindows()
-
 
 draw_thread = Thread(target=draw)
 draw_thread.start()
@@ -140,3 +138,4 @@ alignment_thread.start()
 
 face_detection()
 cap.release()
+cv2.destroyAllWindows()

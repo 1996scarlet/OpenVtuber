@@ -1,18 +1,25 @@
 import cv2
 import tensorflow as tf
 import numpy as np
+from functools import partial
 
 
 class IrisLocalizationModel():
 
     def __init__(self, filepath):
         # Load the TFLite model and allocate tensors.
-        self.interpreter = tf.lite.Interpreter(model_path=filepath)
-        self.interpreter.allocate_tensors()
+        self._interpreter = tf.lite.Interpreter(model_path=filepath)
+        self._interpreter.allocate_tensors()
 
-        # Get input and output tensors.
-        self.input_details = self.interpreter.get_input_details()
-        self.output_details = self.interpreter.get_output_details()
+        # model details
+        input_details = self._interpreter.get_input_details()
+        output_details = self._interpreter.get_output_details()
+
+        # inference helper
+        self._set_input_tensor = partial(self._interpreter.set_tensor,
+                                         input_details[0]["index"])
+        self._get_output_tensor = partial(self._interpreter.get_tensor,
+                                          output_details[0]["index"])
 
         self.trans_distance = 32
         self.input_shape = (64, 64)
@@ -60,12 +67,11 @@ class IrisLocalizationModel():
         image = image[tf.newaxis, :]
 
         # The actual detection.
-        self.interpreter.set_tensor(self.input_details[0]["index"], image)
-        self.interpreter.invoke()
+        self._set_input_tensor(image)
+        self._interpreter.invoke()
 
         # Save the results.
-        iris = self.interpreter.get_tensor(self.output_details[0]["index"])[0]
-        # iris = self.interpreter.tensor(self.output_details[1]["index"])()
+        iris = self._get_output_tensor()[0]
 
         iris = iris.reshape(-1, 3)
         iris[:, 2] = 1
@@ -114,10 +120,6 @@ class IrisLocalizationModel():
                           delta_y * SIN_UP_THETA))
         delta /= eye_length
         theta, pha = np.arcsin(delta)
-
-        # print(f"THETA:{180 * theta / pi}, PHA:{180 * pha / pi}")
-        # delta[0, abs(theta) < 0.1] = 0
-        # delta[1, abs(pha) < 0.03] = 0
 
         inv_judge = zc_distance**2 - delta_y**2 < eye_length**2 / 4
 
@@ -192,7 +194,7 @@ if __name__ == "__main__":
 
             gs.draw_eye_markers(eye_markers, frame, thickness=1)
 
-        # cv2.imshow('res', frame)
+        cv2.imshow('res', frame)
         # cv2.imwrite(f'./asset/orign_dress/img{counter:0>3}.png', frame)
 
         counter += 1

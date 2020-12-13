@@ -5,7 +5,7 @@
 
 [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/1996scarlet/OpenVtuber.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/1996scarlet/OpenVtuber/context:python)
 [![License](https://badgen.net/github/license/1996scarlet/OpenVtuber)](LICENSE)
-[![CVPR](https://badgen.net/badge/ECCV/2018/red)](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html)
+[![ECCV](https://badgen.net/badge/ECCV/2018/red)](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html)
 
 OpenVtuber: An application of real-time face and gaze analyzation via deep nerual networks.
 
@@ -45,14 +45,17 @@ However, since the detection target of the face capture system is in the middle-
 
 ## Face Alignment
 
-In this project, we applying facial landmarks for calculating head pose and slicing the eye regions for gaze estimation.
+In this project, we apply the facial landmarks for calculating head pose and slicing the eye regions for gaze estimation. Moreover, the mouth and eys status can be inferenced via these key points.
 
-The 2D pre-trained model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm.
-The model is trained on 2D 106 landmarks dataset, which annotated as below:
+![rm8az6.jpg](https://s3.ax1x.com/2020/12/13/rm8az6.jpg)
 
-![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG)
+The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm. We refine this model into tflite version with lower weights (4.7 MB), which can be found at [here](pretrained/coor_2d106_face_alignment.tflite).
 
 ## Head Pose Estimation
+
+The model is trained on 2D 106 landmarks dataset, which annotated as below:
+
+<!-- ![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG) -->
 
 <p align="center"><img src="docs/images/one.gif" /></p>
 
