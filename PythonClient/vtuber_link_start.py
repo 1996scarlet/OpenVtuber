@@ -8,7 +8,6 @@ import cv2
 import sys
 import numpy as np
 from queue import Queue
-import time
 import socketio
 
 cap = cv2.VideoCapture(sys.argv[1])
@@ -28,12 +27,6 @@ iris_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
 upstream_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
 
 # ======================================================
-
-
-def encode_image(image, quality=90):
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
-    return cv2.imencode('.jpg', image, encode_param)[1].tostring()
-
 
 sio = socketio.Client()
 

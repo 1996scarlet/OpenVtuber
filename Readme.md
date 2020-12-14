@@ -60,7 +60,7 @@ python3 TFLiteFaceAlignment.py <your-video-path>
 The Perspective-n-Point (PnP) is the problem of determining the 3D position and orientation (pose) of a camera from observations of known point features.
 The PnP is typically formulated and solved linearly by employing [lifting](https://ieeexplore.ieee.org/document/1195992), or [algebraically](https://openaccess.thecvf.com/content_cvpr_2017/html/Ke_An_Efficient_Algebraic_CVPR_2017_paper.html) or [directly](https://ieeexplore.ieee.org/document/6126266).
 
-Briefily, for head pose estimation, a set of pre-defined 3D facial landmarks and the corresponding 2D image projections need to be given. In this project, we employed the eyebrow, eye, nose, mouth and jaw landmarks in [AIFI Anthropometric Model](https://aifi.isr.uc.pt/Downloads.html) as origin 3D feature points. The pre-defined 3D vectors and mapping proctol can be found at [here](PythonClient/pretrained/head_pose_object_points.npy).
+Briefily, for head pose estimation, a set of pre-defined 3D facial landmarks and the corresponding 2D image projections need to be given. In this project, we employed the eyebrow, eye, nose, mouth and jaw landmarks in the [AIFI Anthropometric Model](https://aifi.isr.uc.pt/Downloads.html) as origin 3D feature points. The pre-defined vectors and mapping proctol can be found at [here](PythonClient/pretrained/head_pose_object_points.npy).
 
 <p align="center"><img src="docs/images/one.gif" /></p>
 
@@ -72,11 +72,18 @@ python3 SolvePnPHeadPoseEstimation.py <your-video-path>
 
 ## Iris Localization
 
-3D Gaze Estimation is based on
+Estimating human gaze from a single RGB face image is a challenging task.
+Theoretically speaking, the gaze direction can be defined by pupil and eyeball center, however, the latter is unobservable in 2D images. Previous work of [Swook, et al.](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html) presents a method to extract the semantic information of iris and eyeball into the intermediate representation, which so called gazemaps, and then decode the gazemaps into euler angle through regression network.
 
-and the head posed
+Inspired by this, we propose a 3D semantic information based gaze estimation method. Instead of employing gazemaps as the intermediate representation, we estimate the center of the eyeball directly from the average geometric information of human gaze.
 
-* [Laser Eye : Gaze Estimation via Deep Neural Networks](https://github.com/1996scarlet/Laser-Eye)
+Our eye region landmark detection and iris localization models are more robust than the [original implementation](https://github.com/swook/GazeML), which leads to the higher accuracy in more complex situations. The demo of iris and eye region localization can be run as follows:
+
+``` bash
+python3 TFLiteIrisLocalization.py <your-video-path>
+```
+
+More details about 3D gaze estimation can be found at [Laser Eye](https://github.com/1996scarlet/Laser-Eye) repository.
 
 ## Kizuna-Ai Demo
 
