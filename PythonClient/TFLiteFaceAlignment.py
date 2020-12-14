@@ -120,9 +120,10 @@ class CoordinateAlignmentModel():
             out = self._inference(inp)
             pred = self._postprocessing(out, M)
 
-            self._calibrate(pred, 1, skip=6)
+            # self._calibrate(pred, 1, skip=6)
+            # yield self.pre_landmarks
 
-            yield self.pre_landmarks
+            yield pred
 
 
 if __name__ == '__main__':
