@@ -26,7 +26,7 @@ class HeadPoseEstimator:
         if len(shape) != 106:
             raise RuntimeError('Unsupported shape format')
 
-        ret, rotation_vec, translation_vec = self._solve_pnp(shape)
+        _, rotation_vec, translation_vec = self._solve_pnp(shape)
 
         rotation_mat = cv2.Rodrigues(rotation_vec)[0]
         pose_mat = cv2.hconcat((rotation_mat, translation_vec))

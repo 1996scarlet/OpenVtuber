@@ -47,7 +47,7 @@ However, since the detection target of the face capture system is in the middle-
 
 In this project, we apply the facial landmarks for calculating head pose and slicing the eye regions for gaze estimation. Moreover, the mouth and eys status can be inferenced via these key points.
 
-![rm8az6.jpg](https://s3.ax1x.com/2020/12/13/rm8az6.jpg)
+![Emotion](https://s3.ax1x.com/2020/12/13/rm8az6.jpg)
 
 The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm. We refine this model into TFLite version with lower weights (4.7 MB), which can be found at [here](PythonClient/pretrained/coor_2d106_face_alignment.tflite). For checking the effectiveness of landmark detection, run the following command at `PythonClient` sub directory:
 
@@ -57,68 +57,17 @@ python3 TFLiteFaceAlignment.py <your-video-path>
 
 ## Head Pose Estimation
 
-The model is trained on 2D 106 landmarks dataset, which annotated as below:
+The Perspective-n-Point (PnP) is the problem of determining the 3D position and orientation (pose) of a camera from observations of known point features.
+The PnP is typically formulated and solved linearly by employing [lifting](https://ieeexplore.ieee.org/document/1195992), or [algebraically](https://openaccess.thecvf.com/content_cvpr_2017/html/Ke_An_Efficient_Algebraic_CVPR_2017_paper.html) or [directly](https://ieeexplore.ieee.org/document/6126266).
 
-<!-- ![ibug](https://cloud.githubusercontent.com/assets/16308037/24229391/1910e9cc-0fb4-11e7-987b-0fecce2c829e.JPG) -->
+Briefily, for head pose estimation, a set of pre-defined 3D facial landmarks and the corresponding 2D image projections need to be given. In this project, we employed the eyebrow, eye, nose, mouth and jaw landmarks in [AIFI Anthropometric Model](https://aifi.isr.uc.pt/Downloads.html) as origin 3D feature points. The pre-defined 3D vectors and mapping proctol can be found at [here](PythonClient/pretrained/head_pose_object_points.npy).
 
-<!-- <p align="center"><img src="docs/images/one.gif" /></p> -->
+<p align="center"><img src="docs/images/one.gif" /></p>
 
-* [head-pose-estimation](https://github.com/lincolnhard/head-pose-estimation)
+We adopt `cv2.SolvePnP` API for calculating the rotation vector and transform vector. Run the following command at `PythonClient` sub directory for real-time head pose estimation:
 
-```
-        self.object_pts = np.float32([
-            [1.330353, 7.122144, 6.903745],  # 29
-            [2.533424, 7.878085, 7.451034],
-            [4.861131, 7.878672, 6.601275],
-            [6.137002, 7.271266, 5.200823],
-            [6.825897, 6.760612, 4.402142],
-            [-1.330353, 7.122144, 6.903745],  # 34
-            [-2.533424, 7.878085, 7.451034],
-            [-4.861131, 7.878672, 6.601275],
-            [-6.137002, 7.271266, 5.200823],
-            [-6.825897, 6.760612, 4.402142],
-            [5.311432, 5.485328, 3.987654],  # 13
-            [4.461908, 6.189018, 5.594410],
-            [3.550622, 6.185143, 5.712299],
-            [2.542231, 5.862829, 4.687939],
-            [1.789930, 5.393625, 4.413414],
-            [2.693583, 5.018237, 5.072837],
-            [3.530191, 4.981603, 4.937805],
-            [4.490323, 5.186498, 4.694397],
-            [-5.311432, 5.485328, 3.987654],  # 21
-            [-4.461908, 6.189018, 5.594410],
-            [-3.550622, 6.185143, 5.712299],
-            [-2.542231, 5.862829, 4.687939],
-            [-1.789930, 5.393625, 4.413414],
-            [-2.693583, 5.018237, 5.072837],
-            [-3.530191, 4.981603, 4.937805],
-            [-4.490323, 5.186498, 4.694397],
-            [0.981972, 4.554081, 6.301271],  # 57
-            [-0.981972, 4.554081, 6.301271],  # 47
-            [-1.930245, 0.424351, 5.914376],  # 50
-            [-0.746313, 0.348381, 6.263227],
-            [0.000000, 0.000000, 6.763430],  # 52
-            [0.746313, 0.348381, 6.263227],
-            [1.930245, 0.424351, 5.914376],  # 54
-            [0.000000, 1.916389, 7.700000],  # nose tip
-            [-2.774015, -2.080775, 5.048531],  # 39
-            [0.000000, -1.646444, 6.704956],  # 41
-            [2.774015, -2.080775, 5.048531],  # 43
-            [0.000000, -3.116408, 6.097667],  # 45
-            [0.000000, -7.415691, 4.070434],
-        ])
-
-        self.mapping = [
-            50, 51, 49, 48, 43,  # eyebrow
-            102, 103, 104, 105, 101,  # eyebrow
-            35, 41, 40, 42, 39, 37, 33, 36,  # eye
-            93, 96, 94, 95, 89, 90, 87, 91,  # eye
-            75, 81,  # nose
-            84, 85, 80, 79, 78,  # nose
-            86,  # nose tip
-            61, 71, 52, 53,  # mouth
-            0  # jaw
-        ]
+``` bash
+python3 SolvePnPHeadPoseEstimation.py <your-video-path>
 ```
 
 ## Iris Localization
