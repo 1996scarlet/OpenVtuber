@@ -77,13 +77,15 @@ Theoretically speaking, the gaze direction can be defined by pupil and eyeball c
 
 Inspired by this, we propose a 3D semantic information based gaze estimation method. Instead of employing gazemaps as the intermediate representation, we estimate the center of the eyeball directly from the average geometric information of human gaze.
 
-Our eye region landmark detection and iris localization models are more robust than the [original implementation](https://github.com/swook/GazeML), which leads to the higher accuracy in more complex situations. The demo of iris and eye region localization can be run as follows:
+![rKWPK0.jpg](https://s3.ax1x.com/2020/12/15/rKWPK0.jpg)
+
+Our eye region landmark detection and iris localization models are more robust than the [original implementation](https://github.com/swook/GazeML), which leads to the higher accuracy in more complex situations. The demo of iris localization can be run as follows:
 
 ``` bash
 python3 TFLiteIrisLocalization.py <your-video-path>
 ```
 
-More details about 3D gaze estimation can be found at [Laser Eye](https://github.com/1996scarlet/Laser-Eye) repository.
+More details about 3D gaze estimation can be found at the [Laser Eye](https://github.com/1996scarlet/Laser-Eye) repository.
 
 ## Kizuna-Ai Demo
 
