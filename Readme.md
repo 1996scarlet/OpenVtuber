@@ -21,6 +21,7 @@ OpenVtuber: An application of real-time face and gaze analyzation via deep nerua
 * Python 3.6+
 * `pip3 install -r requirements.txt`
 * node.js and npm or [yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable)
+* `cd NodeServer && yarn`  # install node modules
 
 ### Socket-IO Server
 
@@ -30,7 +31,7 @@ OpenVtuber: An application of real-time face and gaze analyzation via deep nerua
 ### Python Client
 
 * `cd PythonClient`
-* `python3 vtuber_usb_camera.py <your-video-path>`
+* `python3 vtuber_link_start.py <your-video-path>`
 
 ## Face Detection
 
@@ -87,10 +88,6 @@ python3 TFLiteIrisLocalization.py <your-video-path>
 
 More details about 3D gaze estimation can be found at the [Laser Eye](https://github.com/1996scarlet/Laser-Eye) repository.
 
-## Kizuna-Ai Demo
-
-face capture via single RGB camera
-
 ## Special Thanks
 
 * [threejs.org](https://threejs.org/): Applying Three.js WebGL Loader to render MMD models on web pages.
@@ -102,6 +99,14 @@ face capture via single RGB camera
 @InProceedings{Park_2018_ECCV,
       author = {Park, Seonwook and Spurr, Adrian and Hilliges, Otmar},
       title = {Deep Pictorial Gaze Estimation},
+      booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
+      month = {September},
+      year = {2018}
+}
+
+@inproceedings{LiuHW18,
+      author = {Songtao Liu and Di Huang and Yunhong Wang},
+      title = {Receptive Field Block Net for Accurate and Fast Object Detection},
       booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
       month = {September},
       year = {2018}

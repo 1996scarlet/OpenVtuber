@@ -174,7 +174,9 @@ if __name__ == "__main__":
             eye_centers = landmarks[[34, 88]]
 
             # eye_lengths = np.linalg.norm(landmarks[[39, 93]] - landmarks[[35, 89]], axis=1)
-            eye_lengths = (landmarks[[39, 93]] - landmarks[[35, 89]])[:, 0]
+            eye_start = landmarks[[35, 89]]
+            eye_end = landmarks[[39, 93]]
+            eye_lengths = (eye_end - eye_start)[:, 0]
 
             pupils = eye_centers.copy()
 
@@ -190,7 +192,7 @@ if __name__ == "__main__":
 
             theta, pha, _ = gs.calculate_3d_gaze(poi)
 
-            print(theta.mean(), pha.mean())
+            # print(theta.mean(), pha.mean())
 
             gs.draw_eye_markers(eye_markers, frame, thickness=1)
 

@@ -157,5 +157,5 @@ if __name__ == '__main__':
         print(time.perf_counter() - start_time)
 
         cv2.imshow("result", frame)
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(0) == ord('q'):
             break
