@@ -104,8 +104,8 @@ More details about 3D gaze estimation can be found at the [Laser Eye](https://gi
       year = {2018}
 }
 
-@inproceedings{LiuHW18,
-      author = {Songtao Liu and Di Huang and Yunhong Wang},
+@inproceedings{Liu_2018_ECCV,
+      author = {Liu, Songtao and Huang, Di and Wang, Yunhong},
       title = {Receptive Field Block Net for Accurate and Fast Object Detection},
       booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
       month = {September},

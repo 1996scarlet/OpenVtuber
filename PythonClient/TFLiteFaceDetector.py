@@ -121,3 +121,32 @@ class UltraLightFaceDetecion():
         boxes = np.clip(boxes, 0.0, 1.0)
 
         return boxes
+
+
+if __name__ == '__main__':
+    import sys
+    import time
+
+    fd = UltraLightFaceDetecion(
+        "pretrained/version-RFB-320_without_postprocessing.tflite",
+        conf_threshold=0.88)
+
+    cap = cv2.VideoCapture(sys.argv[1])
+    color = (125, 255, 125)
+
+    while True:
+        ret, frame = cap.read()
+
+        if not ret:
+            break
+
+        start_time = time.perf_counter()
+        boxes, scores = fd.inference(frame)
+        print(time.perf_counter() - start_time)
+
+        for det in boxes.astype(np.int32):
+            cv2.rectangle(frame, (det[0], det[1]), (det[2], det[3]), (2, 255, 0), 1)
+
+        cv2.imshow("result", frame)
+        if cv2.waitKey(1) == ord('q'):
+            break
