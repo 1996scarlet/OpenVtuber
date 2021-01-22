@@ -45,9 +45,6 @@ def face_detection():
     while True:
         ret, frame = cap.read()
 
-        # frame = frame[150:800, 800:1600, :]
-        # frame = cv2.resize(frame, (960, 720))
-
         if not ret:
             break
 

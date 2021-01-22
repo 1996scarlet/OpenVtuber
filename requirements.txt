@@ -1,4 +1,6 @@
 tensorflow >= 2.3
 opencv-python
-python-socketio == 4.6.0
-python-engineio == 3.13.0
+bidict == 0.21.2
+websocket-client==0.57.0
+python-socketio == 5.0.4
+python-engineio == 4.0.0
