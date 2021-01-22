@@ -3,12 +3,24 @@
 
 <head>
 	<meta charset="utf-8">
-	<link type="text/css" rel="stylesheet" href="main.css">
+	<style type="text/css">
+		body {
+			margin: 0;
+			background-color: #000;
+			color: #fff;
+			font-family: Monospace;
+			font-size: 13px;
+			line-height: 24px;
+			overscroll-behavior: none;
+		}
+
+		canvas {
+			display: block;
+		}
+	</style>
 </head>
 
 <body>
-	<script src=""></script>
-
 	<script src="https://cdn.jsdelivr.net/npm/socket.io-client@3.1.0/dist/socket.io.min.js"></script>
 
 	<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/js/libs/ammo.wasm.js"></script>
@@ -102,7 +114,7 @@
 
 			var modelFile = 'models/kizunaai/kizunaai.pmx';
 
-			helper = new MMDAnimationHelper({afterglow: 0.0});
+			helper = new MMDAnimationHelper({ afterglow: 0.0 });
 
 			new MMDLoader().load(modelFile, function (object) {
 

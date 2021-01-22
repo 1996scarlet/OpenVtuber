@@ -27,6 +27,7 @@ OpenVtuber: An application of real-time face and gaze analyzation via deep nerua
 
 * `cd NodeServer`
 * `yarn start`
+* Open `http://127.0.0.1:6789/kizuna.html`
 
 ### Python Client
 
