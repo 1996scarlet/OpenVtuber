@@ -9,7 +9,7 @@
 <body>
 	<script src=""></script>
 
-	<script src="https://cdn.bootcdn.net/ajax/libs/socket.io/2.3.0/socket.io.slim.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/socket.io-client@3.1.0/dist/socket.io.min.js"></script>
 
 	<script src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@r123/examples/js/libs/ammo.wasm.js"></script>
 
@@ -157,9 +157,9 @@
 			var blink = result.blink;
 
 			if (head) {
-				head.rotation.x = euler[0] * angle_const;
-				head.rotation.y = euler[1] * angle_const;
-				head.rotation.z = euler[2] * angle_const;
+				head.rotation.x = Math.round(euler[0]) * angle_const;
+				head.rotation.y = Math.round(euler[1]) * angle_const;
+				head.rotation.z = Math.round(euler[2]) * angle_const;
 			}
 
 			if (left_eye) {
