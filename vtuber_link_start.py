@@ -1,23 +1,23 @@
 # coding: utf-8
-from TFLiteFaceDetector import UltraLightFaceDetecion
-from TFLiteFaceAlignment import CoordinateAlignmentModel
-from TFLiteIrisLocalization import IrisLocalizationModel
-from SolvePnPHeadPoseEstimation import HeadPoseEstimator
-from threading import Thread
+
+import numpy as np
+import service
 import cv2
 import sys
-import numpy as np
-from queue import Queue
 import socketio
+
+from threading import Thread
+from queue import Queue
+
 
 cap = cv2.VideoCapture(sys.argv[1])
 
-fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
-                            conf_threshold=0.98)
-fa = CoordinateAlignmentModel("pretrained/coor_2d106_face_alignment.tflite")
-hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
-                       cap.get(3), cap.get(4))
-gs = IrisLocalizationModel("pretrained/iris_localization.tflite")
+fd = service.UltraLightFaceDetecion("weights/RFB-320.tflite",
+                                    conf_threshold=0.98)
+fa = service.CoordinateAlignmentModel("weights/coor_2d106.tflite")
+hp = service.HeadPoseEstimator("weights/head_pose_object_points.npy",
+                               cap.get(3), cap.get(4))
+gs = service.IrisLocalizationModel("weights/iris_localization.tflite")
 
 QUEUE_BUFFER_SIZE = 18
 
@@ -27,19 +27,6 @@ iris_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
 upstream_queue = Queue(maxsize=QUEUE_BUFFER_SIZE)
 
 # ======================================================
-
-sio = socketio.Client()
-
-
-@sio.on('connect', namespace='/kizuna')
-def on_connect():
-    sio.emit('result_data', 0, namespace='/kizuna')
-
-
-sio.connect("http://127.0.0.1:6789")
-
-# ======================================================
-
 
 def face_detection():
     while True:
@@ -59,7 +46,11 @@ def face_alignment():
         landmark_queue.put((frame, landmarks))
 
 
-def iris_localization(YAW_THD=45, thickness=1):
+def iris_localization(YAW_THD=45):
+    sio = socketio.Client()
+
+    sio.connect("http://127.0.0.1:6789", namespaces='/kizuna')
+
     while True:
         frame, preds = landmark_queue.get()
 

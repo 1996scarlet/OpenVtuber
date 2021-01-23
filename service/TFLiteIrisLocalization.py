@@ -142,13 +142,12 @@ if __name__ == "__main__":
 
     cap = cv2.VideoCapture(video)
 
-    fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
+    fd = UltraLightFaceDetecion("weights/RFB-320.tflite",
                                 conf_threshold=0.9)
-    fa = CoordinateAlignmentModel(
-        "pretrained/coor_2d106_face_alignment.tflite")
-    hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
+    fa = CoordinateAlignmentModel("weights/coor_2d106.tflite")
+    hp = HeadPoseEstimator("weights/head_pose_object_points.npy",
                            cap.get(3), cap.get(4))
-    gs = IrisLocalizationModel("pretrained/iris_localization.tflite")
+    gs = IrisLocalizationModel("weights/iris_localization.tflite")
 
     counter = 0
 

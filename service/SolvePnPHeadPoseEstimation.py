@@ -73,11 +73,10 @@ def main(filename):
 
     cap = cv2.VideoCapture(filename)
 
-    fd = UltraLightFaceDetecion("pretrained/version-RFB-320_without_postprocessing.tflite",
+    fd = UltraLightFaceDetecion("weights/RFB-320.tflite",
                                 conf_threshold=0.95)
-    fa = CoordinateAlignmentModel(
-        "pretrained/coor_2d106_face_alignment.tflite")
-    hp = HeadPoseEstimator("pretrained/head_pose_object_points.npy",
+    fa = CoordinateAlignmentModel("weights/coor_2d106.tflite")
+    hp = HeadPoseEstimator("weights/head_pose_object_points.npy",
                            cap.get(3), cap.get(4))
 
     color = (125, 255, 125)

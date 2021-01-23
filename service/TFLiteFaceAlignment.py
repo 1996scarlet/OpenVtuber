@@ -132,10 +132,10 @@ if __name__ == '__main__':
     import sys
 
     fd = UltraLightFaceDetecion(
-        "pretrained/version-RFB-320_without_postprocessing.tflite",
+        "weights/RFB-320.tflite",
         conf_threshold=0.88)
     fa = CoordinateAlignmentModel(
-        "pretrained/coor_2d106_face_alignment.tflite")
+        "weights/coor_2d106.tflite")
 
     cap = cv2.VideoCapture(sys.argv[1])
     color = (125, 255, 125)

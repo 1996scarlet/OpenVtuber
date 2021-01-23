@@ -31,7 +31,6 @@ OpenVtuber: An application of real-time face and gaze analyzation via deep nerua
 
 ### Python Client
 
-* `cd PythonClient`
 * `python3 vtuber_link_start.py <your-video-path>`
 
 ## Face Detection
@@ -51,10 +50,10 @@ In this project, we apply the facial landmarks for calculating head pose and sli
 
 ![Emotion](https://s3.ax1x.com/2020/12/13/rm8az6.jpg)
 
-The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm. We refine this model into TFLite version with lower weights (4.7 MB), which can be found at [here](PythonClient/pretrained/coor_2d106_face_alignment.tflite). For checking the effectiveness of landmark detection, run the following command at `PythonClient` sub directory:
+The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm. We refine this model into TFLite version with lower weights (4.7 MB), which can be found at [here](PythonClient/weights/coor_2d106.tflite). For checking the effectiveness of landmark detection, run the following command at `PythonClient` sub directory:
 
 ``` bash
-python3 TFLiteFaceAlignment.py <your-video-path>
+python3 service/TFLiteFaceAlignment.py <your-video-path>
 ```
 
 ## Head Pose Estimation
@@ -62,14 +61,14 @@ python3 TFLiteFaceAlignment.py <your-video-path>
 The Perspective-n-Point (PnP) is the problem of determining the 3D position and orientation (pose) of a camera from observations of known point features.
 The PnP is typically formulated and solved linearly by employing [lifting](https://ieeexplore.ieee.org/document/1195992), or [algebraically](https://openaccess.thecvf.com/content_cvpr_2017/html/Ke_An_Efficient_Algebraic_CVPR_2017_paper.html) or [directly](https://ieeexplore.ieee.org/document/6126266).
 
-Briefily, for head pose estimation, a set of pre-defined 3D facial landmarks and the corresponding 2D image projections need to be given. In this project, we employed the eyebrow, eye, nose, mouth and jaw landmarks in the [AIFI Anthropometric Model](https://aifi.isr.uc.pt/Downloads.html) as origin 3D feature points. The pre-defined vectors and mapping proctol can be found at [here](PythonClient/pretrained/head_pose_object_points.npy).
+Briefily, for head pose estimation, a set of pre-defined 3D facial landmarks and the corresponding 2D image projections need to be given. In this project, we employed the eyebrow, eye, nose, mouth and jaw landmarks in the [AIFI Anthropometric Model](https://aifi.isr.uc.pt/Downloads.html) as origin 3D feature points. The pre-defined vectors and mapping proctol can be found at [here](PythonClient/weights/head_pose_object_points.npy).
 
 <p align="center"><img src="docs/images/one.gif" /></p>
 
 We adopt `cv2.SolvePnP` API for calculating the rotation vector and transform vector. Run the following command at `PythonClient` sub directory for real-time head pose estimation:
 
 ``` bash
-python3 SolvePnPHeadPoseEstimation.py <your-video-path>
+python3 service/SolvePnPHeadPoseEstimation.py <your-video-path>
 ```
 
 ## Iris Localization
@@ -84,7 +83,7 @@ Inspired by this, we propose a 3D semantic information based gaze estimation met
 Our eye region landmark detection and iris localization models are more robust than the [original implementation](https://github.com/swook/GazeML), which leads to the higher accuracy in more complex situations. The demo of iris localization can be run as follows:
 
 ``` bash
-python3 TFLiteIrisLocalization.py <your-video-path>
+python3 service/TFLiteIrisLocalization.py <your-video-path>
 ```
 
 More details about 3D gaze estimation can be found at the [Laser Eye](https://github.com/1996scarlet/Laser-Eye) repository.
