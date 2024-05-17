@@ -3,7 +3,6 @@
 <p align="center"><img src="https://s3.ax1x.com/2020/12/12/rVO3FO.gif" /></p>
 <p align="center"><img src="https://s3.ax1x.com/2020/12/12/rZeXD0.gif" /></p>
 
-[![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/1996scarlet/OpenVtuber.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/1996scarlet/OpenVtuber/context:python)
 [![License](https://badgen.net/github/license/1996scarlet/OpenVtuber)](LICENSE)
 [![ECCV](https://badgen.net/badge/ECCV/2018/red)](https://openaccess.thecvf.com/content_ECCV_2018/html/Seonwook_Park_Deep_Pictorial_Gaze_ECCV_2018_paper.html)
 
