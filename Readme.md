@@ -49,7 +49,7 @@ In this project, we apply the facial landmarks for calculating head pose and sli
 
 ![Emotion](https://s3.ax1x.com/2020/12/13/rm8az6.jpg)
 
-The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinateReg) repository, based on the coordinate regression face alignment algorithm. We refine this model into TFLite version with lower weights (4.7 MB), which can be found at [here](PythonClient/weights/coor_2d106.tflite). For checking the effectiveness of landmark detection, run the following command at `PythonClient` sub directory:
+The 2D pre-trained 106 landmarks model is provided by [insightface](https://github.com/deepinsight/insightface/tree/master/alignment/coordinate_reg) repository, based on the coordinate regression face alignment algorithm. We refine this model into TFLite version with lower weights (4.7 MB), which can be found at [here](PythonClient/weights/coor_2d106.tflite). For checking the effectiveness of landmark detection, run the following command at `PythonClient` sub directory:
 
 ``` bash
 python3 service/TFLiteFaceAlignment.py <your-video-path>
@@ -95,19 +95,27 @@ More details about 3D gaze estimation can be found at the [Laser Eye](https://gi
 ## Citation
 
 ``` bibtex
-@InProceedings{Park_2018_ECCV,
-      author = {Park, Seonwook and Spurr, Adrian and Hilliges, Otmar},
-      title = {Deep Pictorial Gaze Estimation},
-      booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
-      month = {September},
-      year = {2018}
+@inproceedings{park2018deep,
+  title={Deep pictorial gaze estimation},
+  author={Park, Seonwook and Spurr, Adrian and Hilliges, Otmar},
+  booktitle={Proceedings of the European conference on computer vision (ECCV)},
+  pages={721--738},
+  year={2018}
 }
 
-@inproceedings{Liu_2018_ECCV,
-      author = {Liu, Songtao and Huang, Di and Wang, Yunhong},
-      title = {Receptive Field Block Net for Accurate and Fast Object Detection},
-      booktitle = {Proceedings of the European Conference on Computer Vision (ECCV)},
-      month = {September},
-      year = {2018}
+@inproceedings{liu2018receptive,
+  title={Receptive field block net for accurate and fast object detection},
+  author={Liu, Songtao and Huang, Di and others},
+  booktitle={Proceedings of the European conference on computer vision (ECCV)},
+  pages={385--400},
+  year={2018}
+}
+
+@inproceedings{ke2017efficient,
+  title={An efficient algebraic solution to the perspective-three-point problem},
+  author={Ke, Tong and Roumeliotis, Stergios I},
+  booktitle={Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition},
+  pages={7225--7233},
+  year={2017}
 }
 ```
