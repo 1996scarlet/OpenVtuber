@@ -1,0 +1,95 @@
+[tool.poetry]
+name = "vtuber-link-start"
+version = "0.1.0"
+description = "A Python-based VTuber face tracking and animation system"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "Readme.md"
+packages = [{include = "service"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+tensorflow = ">=2.3"
+opencv-python = "*"
+bidict = "0.21.2"
+websocket-client = "0.57.0"
+python-socketio = "5.0.4"
+python-engineio = "4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+
+[tool.poetry.scripts]
+test = "pytest:main"
+tests = "pytest:main"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--verbose",
+    "--cov=service",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--cov-report=term-missing",
+    "--cov-fail-under=0",
+    "--tb=short",
+    "--maxfail=1",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Tests that take a long time to run",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+]
+console_output_style = "progress"
+
+[tool.coverage.run]
+source = ["service"]
+omit = [
+    "*/tests/*",
+    "*/test_*",
+    "*/__init__.py",
+    "*/conftest.py",
+    "*/migrations/*",
+    "*/.venv/*",
+    "*/venv/*",
+    "*/env/*",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "def __str__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
