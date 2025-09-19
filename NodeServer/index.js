@@ -2,17 +2,36 @@ var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 
-function handler(req, res) {
-    fs.readFile(__dirname + req.url,
-        function (err, data) {
-            if (err) {
-                res.writeHead(500);
-                return res.end('Error loading index.html');
-            }
+const path = require('path');
 
-            res.writeHead(200);
-            res.end(data);
-        });
+function handler(req, res) {
+    const ROOT = __dirname; // Define the safe root directory
+    let filePath;
+
+    try {
+        // Resolve and normalize the file path
+        filePath = path.resolve(ROOT, '.' + req.url);
+        filePath = fs.realpathSync(filePath);
+
+        // Ensure the file path is within the root directory
+        if (!filePath.startsWith(ROOT)) {
+            res.writeHead(403);
+            return res.end('Access denied');
+        }
+    } catch (err) {
+        res.writeHead(400);
+        return res.end('Invalid file path');
+    }
+
+    fs.readFile(filePath, function (err, data) {
+        if (err) {
+            res.writeHead(500);
+            return res.end('Error loading file');
+        }
+
+        res.writeHead(200);
+        res.end(data);
+    });
 }
 
 io.of('/kizuna').on('connection', (socket) => {
